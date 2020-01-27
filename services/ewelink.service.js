@@ -1,5 +1,5 @@
 const ewelink = require('ewelink-api');
-const DevicesRepository = require('./devices.repository');
+const DevicesRepository = require('../repository/devices.repository');
 const Device = require('../models/device');
 var Promise = require("bluebird");
 
