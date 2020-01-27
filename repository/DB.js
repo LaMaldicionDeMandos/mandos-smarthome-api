@@ -8,6 +8,7 @@ const Schema = mongoose.Schema;
 const ConsumeSchema = new Schema({
     _id:String,
     deviceId:String,
+    name:String,
     power:Number,
     date:{type:Date, default:Date.now},
     powerOn:{type:Boolean, default: false},

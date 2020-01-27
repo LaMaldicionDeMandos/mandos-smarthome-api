@@ -7,15 +7,21 @@ const DEVICE_POWER_SENSE_INTERVAL = 1000*60;
 
 var intervals = {};
 
+const persistConsume = (device, powerOn, powerOff) => {
+    const c = new DB.Consume();
+    c._id = new DB.ObjectId();
+    c.deviceId = device.id;
+    c.name = device.name;
+    c.power = parseFloat(device.power);
+    c.powerOn = powerOn;
+    c.powerOff = powerOff;
+    return c.saveAsync();
+};
+
 const managePowerDevice = (device, deviceService) => {
     if (device.model === 'Pow_R2') {
         if (device.state === 'on' && !intervals[device.id]) {
-            const c = new DB.Consume();
-            c._id = new DB.ObjectId();
-            c.deviceId = device.id;
-            c.power = parseFloat(device.power);
-            c.powerOn = true;
-            c.saveAsync();
+            persistConsume(device, true, false);
             intervals[device.id] = setInterval(() => {
                 console.log("search device power");
                 deviceService.getDevice(device.id)
@@ -24,21 +30,12 @@ const managePowerDevice = (device, deviceService) => {
                         return device;
                     })
                     .then(device => {
-                        const consume = new DB.Consume();
-                        consume._id = new DB.ObjectId();
-                        consume.deviceId = device.id;
-                        consume.power = parseFloat(device.power);
-                        return consume.saveAsync().then(() => consume);
+                        persistConsume(device, false, false).then(() => consume);
                     })
                     .catch((err) => console.log(err));
             }, DEVICE_POWER_SENSE_INTERVAL);
         } else {
-            const c = new DB.Consume();
-            c._id = new DB.ObjectId();
-            c.deviceId = device.id;
-            c.power = parseFloat(device.power);
-            c.powerOff = true;
-            c.saveAsync();
+            persistConsume(device, false, true);
             const interval = intervals[device.id];
             if (interval) {
                 clearInterval(interval);
