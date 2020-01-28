@@ -10,4 +10,11 @@ class Device {
     }
 }
 
+Device.BASIC_MODEL = 'Basic';
+Device.BASIC2_MODEL = 'Basic2';
+Device.POW_R2_MODEL = 'Pow_R2';
+
+Device.ON_STATE = 'on';
+Device.OFF_STATE = 'off';
+
 module.exports = Device;

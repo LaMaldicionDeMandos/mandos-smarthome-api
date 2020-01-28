@@ -1,7 +1,7 @@
 const ewelink = require('ewelink-api');
 const DevicesRepository = require('../repository/devices.repository');
 const Device = require('../models/device');
-var Promise = require("bluebird");
+const Promise = require("bluebird");
 
 const connection = new ewelink({
     email: process.env.EWELINK_EMAIL,
@@ -17,12 +17,6 @@ connection.getCredentials()
     .then(() => connection.openWebSocket(analyzeEvent))
     .then((_socket) => socket = _socket);
 
-function analyzeEvent(data) {
-    if (data.action === 'update' && data.params && data.params.switch) {
-        devicesRepository.updateDevice({id: data.deviceid, params: data.params});
-    }
-}
-
 class DevicesService {
     constructor() {
         this.connection = connection;
@@ -37,6 +31,11 @@ class DevicesService {
         return Promise.resolve(this.connection.getDevice(id)).then(device => new Device(device));
     }
 
+    monitor() {
+        console.log("Comienzo monitoreo");
+        this.getDevices().then(devices => devices.forEach(device => devicesRepository.updateDevice(device)));
+    }
+
     setDevicePowerState(id, state) {
         return this.connection.setDevicePowerState(id, state);
     }
@@ -44,5 +43,11 @@ class DevicesService {
 
 const devicesService = new DevicesService();
 const devicesRepository = new DevicesRepository(devicesService);
+
+const analyzeEvent = (data) => {
+    if (data.action === 'update' && data.params && data.params.switch) {
+        devicesRepository.updateDevice(devicesService.getDevice(data.deviceid));
+    }
+}
 /* get all devices */
 module.exports = devicesService;

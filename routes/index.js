@@ -3,11 +3,11 @@ const router = express.Router();
 const devicesService = require('../services/ewelink.service');
 
 /* GET home page. */
-router.get('/devices', function(req, res, next) {
+router.get('/devices', (req, res) => {
   devicesService.getDevices().then(devices => res.status(200).send(devices));
 });
 
-router.patch('/devices/:id', function(req, res, next) {
+router.patch('/devices/:id', (req, res) => {
   const id = req.params.id;
   const state = req.body.state;
   devicesService.setDevicePowerState(id, state)
@@ -15,6 +15,10 @@ router.patch('/devices/:id', function(req, res, next) {
         if (status.status === 'ok') res.status(200).send(status.state);
         else res.status(500).send();
       });
+});
+
+router.post('/devices/monitor/event', (req, res) => {
+    devicesService.monitor().then(() => res.status(201).send({ok: 'ok'}));
 });
 
 module.exports = router;
