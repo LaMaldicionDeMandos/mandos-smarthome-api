@@ -33,7 +33,7 @@ class DevicesService {
 
     monitor() {
         console.log("Comienzo monitoreo");
-        this.getDevices().then(devices => devices.forEach(device => devicesRepository.updateDevice(device)));
+        return this.getDevices().then(devices => devices.forEach(device => this.getDevice(device.id).then(devicesRepository.updateDevice)));
     }
 
     setDevicePowerState(id, state) {
@@ -44,9 +44,9 @@ class DevicesService {
 const devicesService = new DevicesService();
 const devicesRepository = new DevicesRepository(devicesService);
 
-const analyzeEvent = (data) => {
+function analyzeEvent(data) {
     if (data.action === 'update' && data.params && data.params.switch) {
-        devicesRepository.updateDevice(devicesService.getDevice(data.deviceid));
+        devicesService.getDevice(data.deviceid).then(devicesRepository.updateDevice);
     }
 }
 /* get all devices */

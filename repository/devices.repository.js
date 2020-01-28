@@ -4,6 +4,7 @@ const DB = require('./DB');
 const Device = require('../models/device');
 
 const persistConsume = (device, powerOn, powerOff) => {
+    console.log("Persistiendo: " + JSON.stringify(device));
     const c = new DB.Consume();
     c._id = new DB.ObjectId();
     c.deviceId = device.id;
@@ -35,11 +36,14 @@ class DevicesRepository {
         let device = _(this.devices).find({id: _device.id});
         managePowerDevice(device, _device);
         if (device) {
-            console.log(`update device ${device.name} with state ${data.params.switch}`);
-            device.state = data.params.switch || device.state;
+            console.log(`update device ${device.name} with state ${_device.state}`);
+            device.state = _device.state || device.state;
+            device.power = _device.power;
+            device.voltage = _device.voltage;
+            device.current = _device.current;
         } else {
-            console.log(`New device ${data.id}`);
-            this.devicesService.getDevice(data.id)
+            console.log(`New device ${_device.id}`);
+            this.devicesService.getDevice(_device.id)
                 .tap((device) => this.devices.push(device))
                 .tap((device) => console.log(`Device: ${JSON.stringify(device)}`));
         }
