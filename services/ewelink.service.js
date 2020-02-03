@@ -3,11 +3,15 @@ const DevicesRepository = require('../repository/devices.repository');
 const Device = require('../models/device');
 const Promise = require("bluebird");
 
-const connection = new ewelink({
+const LOGIN = {
     email: process.env.EWELINK_EMAIL,
     password: process.env.EWELINK_PASS,
     region: 'us'
-});
+};
+
+const connect = () => new ewelink(LOGIN);
+
+var connection = connect();
 
 var credentials;
 var socket;
@@ -33,11 +37,30 @@ class DevicesService {
 
     monitor() {
         console.log("Comienzo monitoreo");
-        return this.getDevices().then(devices => devices.forEach(device => this.getDevice(device.id).then(devicesRepository.updateDevice)));
+        return this.getDevices().then(devices =>
+                devices.forEach(
+                    device => this.getDevice(device.id)
+                        .tap((device) => {
+                            if (device.state === Device.ON_STATE && device.model === Device.POW_R2_MODEL && parseFloat(device.power) === 0) {
+                                console.log("Device power = 0, try to reconnect");
+                                this.reconnect();
+                            }
+                        })
+                        .then(devicesRepository.updateDevice))
+        );
     }
 
     setDevicePowerState(id, state) {
         return this.connection.setDevicePowerState(id, state);
+    }
+
+    reconnect() {
+        socket.close();
+        this.connection = connect();
+        this.connection.getCredentials()
+            .then((_credentials) => credentials = _credentials)
+            .then(() => this.connection.openWebSocket(analyzeEvent))
+            .then((_socket) => socket = _socket);
     }
 }
 
