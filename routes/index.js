@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const devicesService = require('../services/ewelink.service');
+const DevicesRepository = require('../repository/devices.repository');
+
+const devicesRepo = new DevicesRepository(devicesService);
 
 /* GET home page. */
 router.get('/devices', (req, res) => {
@@ -19,6 +22,10 @@ router.patch('/devices/:id', (req, res) => {
 
 router.post('/devices/monitor/event', (req, res) => {
     devicesService.monitor().then(() => res.status(201).send({ok: 'ok'}));
+});
+
+router.delete('/devices/monitor/event', (req, res) => {
+    devicesRepo.clearHistory().then(() => res.status(200).send({ok: 'ok'}));
 });
 
 module.exports = router;

@@ -1,5 +1,8 @@
 var Promise = require('bluebird');
 const mongoose = require('mongoose');
+const moment = require('moment-timezone');
+
+const nowArgentina = () => moment.tz(Date.now(), 'America/Buenos_Aires');
 
 Promise.promisifyAll( mongoose );
 
@@ -10,7 +13,7 @@ const ConsumeSchema = new Schema({
     deviceId:String,
     name:String,
     power:Number,
-    date:{type:Date, default:Date.now},
+    date:{type:Date, default:nowArgentina},
     powerOn:{type:Boolean, default: false},
     powerOff:{type:Boolean, default: false}});
 const Consume = mongoose.model('Consume', ConsumeSchema);
@@ -24,6 +27,8 @@ const db = new function() {
     this.ObjectId = mongoose.Types.ObjectId;
     this.Consume = Consume;
 };
+
+db.now = nowArgentina;
 
 process.on('exit', function() {
     console.log('Desconnecting db');

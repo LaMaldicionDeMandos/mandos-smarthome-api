@@ -48,6 +48,11 @@ class DevicesRepository {
                 .tap((device) => console.log(`Device: ${JSON.stringify(device)}`));
         }
     };
+
+    clearHistory = () => {
+        let date = DB.now().subtract(2, 'months');
+        return DB.Consume.deleteManyAsync({date: {'$lt': date}});
+    }
 }
 
 module.exports = DevicesRepository;
