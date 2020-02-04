@@ -2,7 +2,7 @@ var Promise = require('bluebird');
 const mongoose = require('mongoose');
 const moment = require('moment-timezone');
 
-const nowArgentina = () => moment.tz(Date.now(), 'America/Buenos_Aires');
+const nowArgentina = () => moment().tz("America/Argentina/Buenos_Aires");
 
 Promise.promisifyAll( mongoose );
 

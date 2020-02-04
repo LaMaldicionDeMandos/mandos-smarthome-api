@@ -6,14 +6,31 @@ const Device = require('../models/device');
 const persistConsume = (device, powerOn, powerOff) => {
     console.log("Persistiendo: " + JSON.stringify(device));
     const c = new DB.Consume();
-    c._id = new DB.ObjectId();
+
     c.deviceId = device.id;
     c.name = device.name;
     c.power = parseFloat(device.power);
     c.powerOn = powerOn;
     c.powerOff = powerOff;
-    console.log("Persiste consumo " + c);
-    return c.saveAsync();
+    c._id = new DB.ObjectId();
+
+    if (!powerOn && !powerOff) {
+        DB.Consume.findOneAsync({deviceId: device.id}, {}, {sort: {date: -1}})
+            .then((old) => {
+                if (old.power === c.power && !old.powerOn && !old.powerOff) {
+                    old.date = DB.now();
+                    old.updateOneAsync({date: old.date});
+                } else {
+                    c.saveAsync();
+                }
+            });
+    } else {
+        console.log("Persiste consumo " + c);
+        return c.saveAsync();
+    }
+
+
+
 };
 
 const managePowerDevice = (oldDevice, newDevice) => {
