@@ -19,7 +19,8 @@ var socket;
 connection.getCredentials()
     .then((_credentials) => credentials = _credentials)
     .then(() => connection.openWebSocket(analyzeEvent))
-    .then((_socket) => socket = _socket);
+    .then((_socket) => socket = _socket)
+    .catch(e => _reconnect());
 
 class DevicesService {
     constructor() {
@@ -55,6 +56,7 @@ class DevicesService {
     }
 
     reconnect() {
+        if (!process.env.RECONNECT) return;
         socket.close();
         this.connection = connect();
         this.connection.getCredentials()
@@ -66,6 +68,10 @@ class DevicesService {
 
 const devicesService = new DevicesService();
 const devicesRepository = new DevicesRepository(devicesService);
+
+function _reconnect() {
+    devicesService.reconnect();
+}
 
 function analyzeEvent(data) {
     if (data.action === 'update' && data.params && data.params.switch) {

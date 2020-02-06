@@ -21,7 +21,13 @@ router.patch('/devices/:id', (req, res) => {
 });
 
 router.post('/devices/monitor/event', (req, res) => {
-    devicesService.monitor().then(() => res.status(201).send({ok: 'ok'}));
+    devicesService.monitor()
+        .then(() => res.status(201).send({ok: 'ok'}))
+        .catch((e) => {
+            console.log(e);
+            devicesService.reconnect();
+            res.status(500).send(e);
+        })
 });
 
 router.delete('/devices/monitor/event', (req, res) => {
