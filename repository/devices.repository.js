@@ -9,7 +9,7 @@ const persistConsume = (device, powerOn, powerOff) => {
 
     c.deviceId = device.id;
     c.name = device.name;
-    c.power = parseFloat(device.power);
+    c.power = device.power ?  parseFloat(device.power) : 0;
     c.powerOn = powerOn;
     c.powerOff = powerOff;
     c._id = new DB.ObjectId();
