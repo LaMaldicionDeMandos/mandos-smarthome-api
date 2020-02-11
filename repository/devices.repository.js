@@ -34,7 +34,6 @@ const persistConsume = (device, powerOn, powerOff) => {
 };
 
 const managePowerDevice = (oldDevice, newDevice) => {
-    if (newDevice.model !== Device.POW_R2_MODEL) return;
     if (newDevice.state === Device.ON_STATE) persistConsume(newDevice, !oldDevice || newDevice.state !== oldDevice.state, false);
     else if (oldDevice && newDevice.state !== oldDevice.state) persistConsume(newDevice, false, true);
 };
