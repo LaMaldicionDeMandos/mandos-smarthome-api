@@ -68,7 +68,21 @@ class DevicesRepository {
     clearHistory = () => {
         let date = DB.now().subtract(2, 'months');
         return DB.Consume.deleteManyAsync({date: {'$lt': date}});
-    }
+    };
+
+    lastPowerEventQuery = (query, powerOnOff) => {
+        const _query = query.name
+            ? _.assign(query, {name: {'$regex': new RegExp(`^${query.name}$`, 'i')}})
+            : query;
+        return DB.Consume.findOneAsync(_.assign(_query, powerOnOff), {date: true}, {sort: { date: -1}});
+    };
+
+    lastPowerOn = (query) => {
+        return this.lastPowerEventQuery(query, {powerOn: true});
+    };
+    lastPowerOff = (query) => {
+        return this.lastPowerEventQuery(query, {powerOff: true});
+    };
 }
 
 module.exports = DevicesRepository;

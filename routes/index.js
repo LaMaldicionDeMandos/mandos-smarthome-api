@@ -34,4 +34,12 @@ router.delete('/devices/monitor/event', (req, res) => {
     devicesRepo.clearHistory().then(() => res.status(200).send({ok: 'ok'}));
 });
 
+router.get('/devices/monitor/event/on', (req, res) => {
+    devicesRepo.lastPowerOn(req.query).then((date) => res.status(200).send(date));
+});
+
+router.get('/devices/monitor/event/off', (req, res) => {
+    devicesRepo.lastPowerOff(req.query).then((date) => res.status(200).send(date));
+});
+
 module.exports = router;
